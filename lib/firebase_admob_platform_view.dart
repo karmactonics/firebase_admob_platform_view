@@ -22,8 +22,8 @@ class FirebaseAdmobPlatformView {
       ? 'ca-app-pub-3940256099942544~3347511713'
       : 'ca-app-pub-3940256099942544~1458002511';
 
-  static final String testBannerId =
-      Platform.isAndroid ? 'ca-app-pub-3940256099942544/6300978111' 
+  static final String testBannerId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/6300978111'
       : 'ca-app-pub-3940256099942544/2934735716';
 
   /// Initialize this plugin for the AdMob app specified by `appId`.
@@ -57,19 +57,75 @@ enum AdSizeType {
   SmartBanner,
 }
 
+class AdSize {
+  final int height;
+  final int width;
+  final AdSizeType adSizeType;
+
+  // Private constructor. Apps should use the static constants rather than
+  // create their own instances of [AdSize].
+  const AdSize._({
+    @required this.width,
+    @required this.height,
+    @required this.adSizeType,
+  });
+
+  factory AdSize.custom(int width, int height) {
+    return AdSize._(
+        width: width, height: height, adSizeType: AdSizeType.WidthAndHeight);
+  }
+
+  /// The standard banner (320x50) size.
+  static const AdSize banner = AdSize._(
+    width: 320,
+    height: 50,
+    adSizeType: AdSizeType.WidthAndHeight,
+  );
+
+  /// The large banner (320x100) size.
+  static const AdSize largeBanner = AdSize._(
+    width: 320,
+    height: 100,
+    adSizeType: AdSizeType.WidthAndHeight,
+  );
+
+  /// The medium rectangle (300x250) size.
+  static const AdSize mediumRectangle = AdSize._(
+    width: 300,
+    height: 250,
+    adSizeType: AdSizeType.WidthAndHeight,
+  );
+
+  /// The full banner (468x60) size.
+  static const AdSize fullBanner = AdSize._(
+    width: 468,
+    height: 60,
+    adSizeType: AdSizeType.WidthAndHeight,
+  );
+
+  /// The leaderboard (728x90) size.
+  static const AdSize leaderboard = AdSize._(
+    width: 728,
+    height: 90,
+    adSizeType: AdSizeType.WidthAndHeight,
+  );
+
+  static const AdSize smartBanner = AdSize._(
+    width: 0,
+    height: 0,
+    adSizeType: AdSizeType.SmartBanner,
+  );
+}
+
 class AdBannerView extends StatefulWidget {
   final String adId;
-  final AdSizeType adSizeType;
-  final int width;
-  final int height;
+  final AdSize adSize;
 
-  const AdBannerView(
-      {Key key,
-      @required this.adId,
-      @required this.adSizeType,
-      @required this.width,
-      @required this.height})
-      : super(key: key);
+  const AdBannerView({
+    Key key, 
+    @required this.adId, 
+    @required this.adSize}) 
+    : super(key: key);
 
   @override
   _AdBannerViewState createState() => _AdBannerViewState();
@@ -79,26 +135,28 @@ class _AdBannerViewState extends State<AdBannerView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.transparent),
-      child:SizedBox(
-        width: widget.width.toDouble(),
-        height: widget.height.toDouble(),
-        child: (Platform.isAndroid)? AndroidView(
-        viewType: "MobileAdView",
-        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-          Factory<OneSequenceGestureRecognizer>(
-            () => EagerGestureRecognizer(),
-          ),
-        ].toSet(),
-        creationParams: {
-          "adId": widget.adId,
-          "adSizeType": widget.adSizeType.toString(),
-          "width": widget.width,
-          "height": widget.height
-        },
-        creationParamsCodec: StandardMessageCodec(),
-      ): Text("Doesn`t support iOS"),
-      ) 
-    );
+        decoration: BoxDecoration(color: Colors.transparent),
+        alignment: Alignment.center,
+        child: SizedBox(
+          width: widget.adSize.width.toDouble(),
+          height: widget.adSize.height.toDouble(),
+          child: (Platform.isAndroid)
+              ? AndroidView(
+                  viewType: "MobileAdView",
+                  gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+                    Factory<OneSequenceGestureRecognizer>(
+                      () => EagerGestureRecognizer(),
+                    ),
+                  ].toSet(),
+                  creationParams: {
+                    "adId": widget.adId,
+                    "adSizeType": widget.adSize.adSizeType.toString(),
+                    "width": widget.adSize.width,
+                    "height": widget.adSize.height,
+                  },
+                  creationParamsCodec: StandardMessageCodec(),
+                )
+              : Text("Doesn`t support iOS"),
+        ));
   }
 }
