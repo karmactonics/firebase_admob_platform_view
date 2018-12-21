@@ -117,15 +117,31 @@ class AdSize {
   );
 }
 
+class AdBannerController {
+  final MethodChannel _channel;
+
+  AdBannerController(int uniqueId)
+      : _channel =
+            MethodChannel("hokuto.ibe/firebase_admob_platform_view_$uniqueId");
+
+  Future reloadAd() async {
+    return _channel.invokeMethod("reloadAd");
+  }
+}
+
+typedef void AdBannerCreatedCallback(AdBannerController controller);
+
 class AdBannerView extends StatefulWidget {
   final String adId;
   final AdSize adSize;
+  final AdBannerCreatedCallback callback;
 
   const AdBannerView({
-    Key key, 
-    @required this.adId, 
-    @required this.adSize}) 
-    : super(key: key);
+    Key key,
+    @required this.adId,
+    @required this.adSize,
+    @required this.callback,
+  }) : super(key: key);
 
   @override
   _AdBannerViewState createState() => _AdBannerViewState();
@@ -155,8 +171,16 @@ class _AdBannerViewState extends State<AdBannerView> {
                     "height": widget.adSize.height,
                   },
                   creationParamsCodec: StandardMessageCodec(),
+                  onPlatformViewCreated: _onPlatformViewCreated,
                 )
               : Text("Doesn`t support iOS"),
         ));
+  }
+
+  void _onPlatformViewCreated(int id) {
+    if (widget.callback == null) {
+      return;
+    }
+    widget.callback(AdBannerController(id));
   }
 }

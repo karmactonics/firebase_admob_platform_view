@@ -34,7 +34,7 @@ public class FirebaseAdmobPlatformViewPlugin implements MethodCallHandler {
       return;
     }
     MobileAds.initialize(registrar.context(), appId);
-    registrar.platformViewRegistry().registerViewFactory("MobileAdView", new MobileAdViewFactory());
+    registrar.platformViewRegistry().registerViewFactory("MobileAdView", new MobileAdViewFactory(registrar.messenger()));
     result.success(Boolean.TRUE);
   }
 
