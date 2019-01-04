@@ -154,27 +154,36 @@ class _AdBannerViewState extends State<AdBannerView> {
         decoration: BoxDecoration(color: Colors.transparent),
         alignment: Alignment.center,
         child: SizedBox(
-          width: widget.adSize.width.toDouble(),
-          height: widget.adSize.height.toDouble(),
-          child: (Platform.isAndroid)
-              ? AndroidView(
-                  viewType: "MobileAdView",
-                  gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-                    Factory<OneSequenceGestureRecognizer>(
-                      () => EagerGestureRecognizer(),
-                    ),
-                  ].toSet(),
-                  creationParams: {
-                    "adId": widget.adId,
-                    "adSizeType": widget.adSize.adSizeType.toString(),
-                    "width": widget.adSize.width,
-                    "height": widget.adSize.height,
-                  },
-                  creationParamsCodec: StandardMessageCodec(),
-                  onPlatformViewCreated: _onPlatformViewCreated,
-                )
-              : Text("Doesn`t support iOS"),
-        ));
+            width: widget.adSize.width.toDouble(),
+            height: widget.adSize.height.toDouble(),
+            child: (Platform.isAndroid)
+                ? AndroidView(
+                    viewType: "MobileAdView",
+                    gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+                      Factory<OneSequenceGestureRecognizer>(
+                        () => EagerGestureRecognizer(),
+                      ),
+                    ].toSet(),
+                    creationParams: {
+                      "adId": widget.adId,
+                      "adSizeType": widget.adSize.adSizeType.toString(),
+                      "width": widget.adSize.width,
+                      "height": widget.adSize.height,
+                    },
+                    creationParamsCodec: StandardMessageCodec(),
+                    onPlatformViewCreated: _onPlatformViewCreated,
+                  )
+                : UiKitView(
+                    viewType: 'MobileAdView',
+                    creationParams: {
+                      "adId": widget.adId,
+                      "adSizeType": widget.adSize.adSizeType.toString(),
+                      "width": widget.adSize.width,
+                      "height": widget.adSize.height,
+                    },
+                    creationParamsCodec: StandardMessageCodec(),
+                    onPlatformViewCreated: _onPlatformViewCreated,
+                  )));
   }
 
   void _onPlatformViewCreated(int id) {
